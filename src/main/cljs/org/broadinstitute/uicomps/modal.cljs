@@ -91,7 +91,7 @@ body." body-class " {
   {:render
    (fn [{:keys [props]}]
      nil)
-   :component-did-mount
+   :component-will-mount
    (fn [{:keys [props locals]}]
      (swap! locals assoc :id (gensym "modal-"))
      (instance :push-modal (:id @locals) (:content props))
