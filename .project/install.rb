@@ -13,7 +13,7 @@ def install(local)
     docker create --name #{cname}
     -w /w
     -v #{vol}
-    clojure
+    clojure:lein-alpine
     lein install
   }
   at_exit { c.run_inline %W{docker rm -f #{cname}} }
