@@ -50,11 +50,14 @@ body." body-class " {
 
 (r/defc Container
   {:push-modal
-   (fn [{:keys [props state]} id content]
-     (when (empty? (:stack @state))
-       (add-css))
-     (swap! state update :stack assoc id content)
-     (js-invoke (aget js/document "body" "classList") "add" body-class))
+   (fn [{:keys [props state after-update]} id content & [did-mount]]
+     (let [will-mount? (not (contains? (:stack @state) id))]
+       (when (empty? (:stack @state))
+         (add-css))
+       (swap! state update :stack assoc id content)
+       (js-invoke (aget js/document "body" "classList") "add" body-class)
+       (when (and will-mount? did-mount)
+         (after-update did-mount))))
    :remove-modal
    (fn [{:keys [state after-update]} id]
      (swap! state update :stack dissoc id)
@@ -67,7 +70,7 @@ body." body-class " {
    :get-initial-state (constantly {:stack {}})
    :render
    (fn [{:keys [props state]}]
-     [:div {:className "dummy-class-1"}
+     [:div {:className "react-cljs-modal-container"}
       (let [{:keys [stack]} @state]
         (map (fn [[id content]]
                [:div {:style {:position "fixed" :z-index (:z-index props)
@@ -91,10 +94,10 @@ body." body-class " {
   {:render
    (fn [{:keys [props]}]
      nil)
-   :component-will-mount
+   :component-did-mount
    (fn [{:keys [props locals]}]
      (swap! locals assoc :id (gensym "modal-"))
-     (instance :push-modal (:id @locals) (:content props))
+     (instance :push-modal (:id @locals) (:content props) (:did-mount props))
      (when-let [dismiss (:dismiss props)]
        (swap! locals assoc :keydown-handler (fn [e] (when (= 27 (aget e "keyCode")) (dismiss))))
        (.addEventListener js/window "keydown" (:keydown-handler @locals))))
@@ -107,8 +110,9 @@ body." body-class " {
        (.removeEventListener js/window "keydown" (:keydown-handler @locals)))
      (instance :remove-modal (:id @locals)))})
 
-(defn render
-  ([content] (render nil content))
-  ([dismiss content]
-   (let [element (if (r/valid-element? content) content (r/create-element content))]
-     [Modal {:content element :dismiss dismiss}])))
+(defn render [content-or-map]
+  (let [m? (map? content-or-map)
+        content (if m? (:content content-or-map) content-or-map)
+        options (if m? (dissoc content-or-map :content) {})
+        element (if (r/valid-element? content) content (r/create-element content))]
+    [Modal (assoc options :content element)]))
