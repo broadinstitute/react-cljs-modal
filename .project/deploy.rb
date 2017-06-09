@@ -25,6 +25,8 @@ def clojars_deploy()
   end
   c.pipe(%W{tar -c .lein/profiles.clj}, %W{docker cp - #{cname}:/root})
   c.run_inline %W{docker start -a #{cname}}
+  c.run_inline %W{git tag #{version}}
+  c.run_inline %W{git push origin #{version}}
 end
 
 Common.register_command({

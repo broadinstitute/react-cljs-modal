@@ -1,13 +1,20 @@
 require_relative "common/common"
 
-def install(local)
+def install(local, *args)
   c = Common.new
+  if not local
+    jars_volume_name = args.shift
+    if jars_volume_name.nil?
+      c.error "Missing docker volume name for storing JARS (e.g. \"jars\")"
+      exit 1
+    end
+  end
   env = c.load_env
   cname = "#{env.namespace}-install"
   if local
     vol = "#{ENV["HOME"]}/.m2:/root/.m2"
   else
-    vol = "jars:/root/.m2"
+    vol = "#{jars_volume_name}:/root/.m2"
   end
   c.run_inline %W{
     docker create --name #{cname}
