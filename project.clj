@@ -2,6 +2,9 @@
 (def version (get (System/getenv) "REACT_CLJS_MODAL_VERSION" "master-SNAPSHOT"))
 
 (defproject org.broadinstitute/react-cljs-modal version
+  :url "https://github.com/broadinstitute/react-cljs-modal"
+  :description "Modal UI Component in React CLJS"
+  :license "BSD 3-Clause License"
   :dependencies
   [
    [dmohs/react "1.1.0+15.4.2-2"]

@@ -4,7 +4,7 @@ def clojars_deploy()
   c = Common.new
   env = c.load_env
   cname = "#{env.namespace}-deploy"
-  version = Time.now.utc.strftime("%Y%m%d")
+  version = Time.now.utc.strftime("%Y.%m.%d")
   version_env = "REACT_CLJS_MODAL_VERSION=#{version}"
   clojars_password_env = "CLOJARS_PASSWORD=#{ENV["CLOJARS_PASSWORD"]}"
   c.run_inline %W{
