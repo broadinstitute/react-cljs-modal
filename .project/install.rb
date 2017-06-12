@@ -20,7 +20,7 @@ def install(local, *args)
     docker create --name #{cname}
     -w /w
     -v #{vol}
-    clojure:lein-alpine
+    dmohs/clojurescript
     lein install
   }
   at_exit { c.run_inline %W{docker rm -f #{cname}} }

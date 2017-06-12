@@ -15,7 +15,7 @@ def start_dev()
   }
   docker_run += c.sf.get_volume_mounts
   cmd = "sleep 1; rlwrap lein with-profile +ui figwheel"
-  docker_run += %W{clojure:rlwrap bash -c #{cmd}}
+  docker_run += %W{dmohs/clojurescript sh -c #{cmd}}
   c.run_inline docker_run
 end
 

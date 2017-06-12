@@ -13,7 +13,7 @@ def clojars_deploy()
     -v jars:/root/.m2
     -e #{version_env}
     -e #{clojars_password_env}
-    clojure:lein-alpine
+    dmohs/clojurescript
     lein deploy clojars
   }
   at_exit { c.run_inline %W{docker rm -f #{cname}} }
