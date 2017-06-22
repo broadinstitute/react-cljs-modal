@@ -1,0 +1,12 @@
+services:
+- docker
+sudo: false
+deploy:
+  provider: script
+  script: project.rb clojars-deploy-via-travis
+  on:
+    branch: master
+    tags: true
+env:
+  global:
+    secure: D7FFNwrXtY1GjMeAA03lRmv7cU/CGSWAlWDUUcmC65ewYV9EMJrOowy5R+S7aNTCQAH6bFbJc6TfpYRgVh1VmHRh0xow2Nrt1wlnsouOy7Jj/GEKeEe43VoUSUUtQY7VbkHKHGOLo2uQvHDQukRwdMe5J7JELcltes3FxvdNEKRpNdtqHT0El4lNNS0/ASTXzfEMC/JkaqNVW/uG2eX88spVqR9YqPNomdhpjwmTedW8aDeSkiMQv/xyh3PSixuH8V5gC4OCuu7t19JVVUkj/+XTH5gnipyRJG0nQv23NO9MWzvP7WjRhEMmswBs3Zgnu8hj8FDbmETwEPbInRYGDwX34Zn0t8JJCUUEGQCvaP5W9rL+z5b7u5m0uf6HTLgg28OiiuDGIFAzX4uQQnMBdaI/r2WMNB564snA1MGzwU070sRwKpd+A/ST+UpO9dNB662pq3t5m3eLpSOEwkvFzdJMzgbLVkhyfEMdWBypsyIOM+A4htcDoJ6xdxRIXBpncMBN+HdMQIg3h7/k2hLtRzpzF4zGqqlkhKhfmls/LL8zLALfQbPrOSep7nuUxF7/fD5Rqzyp1x+69GlYRcnrEQtpt3ejGLB5hBt8QAlNCIJw4cYXgebp99iC9amkKo4kIkx6yLVwQdF3Ti9PRmNU1XPu9yAVyp9zipMo1weVWk8=

@@ -29,8 +29,22 @@ def clojars_deploy()
   c.run_inline %W{git push origin #{version}}
 end
 
+def clojars_deploy_via_travis()
+  puts "*** env ***"
+  p ENV
+  puts
+  c.run_inline %W{git tag -l}
+  c.run_inline %W{git describe --tags}
+end
+
 Common.register_command({
   :invocation => "clojars-deploy",
   :description => "Deploys library to Clojars.",
   :fn => Proc.new { |*args| clojars_deploy(*args) }
+})
+
+Common.register_command({
+  :invocation => "clojars-deploy-via-travis",
+  :description => "Deploys library to Clojars (called by Travis CI).",
+  :fn => Proc.new { |*args| clojars_deploy_via_travis(*args) }
 })
