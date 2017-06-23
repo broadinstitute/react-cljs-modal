@@ -31,9 +31,10 @@ end
 
 def clojars_deploy_via_travis()
   c = Common.new
-  puts "*** env ***"
   p ENV
   puts
+  puts "Tag: #{ENV["TRAVIS_TAG"]}"
+  puts "Branch: #{ENV["TRAVIS_BRANCH"]}"
   c.run_inline %W{git tag -l}
   c.run_inline %W{git describe --tags}
 end
