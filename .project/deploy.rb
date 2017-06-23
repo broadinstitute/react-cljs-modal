@@ -30,6 +30,7 @@ def clojars_deploy()
 end
 
 def clojars_deploy_via_travis()
+  c = Common.new
   puts "*** env ***"
   p ENV
   puts
