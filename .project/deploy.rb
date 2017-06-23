@@ -1,10 +1,9 @@
 require_relative "common/common"
 
-def clojars_deploy()
+def clojars_deploy_version(version)
   c = Common.new
   env = c.load_env
   cname = "#{env.namespace}-deploy"
-  version = Time.now.utc.strftime("%Y.%m.%d")
   version_env = "REACT_CLJS_MODAL_VERSION=#{version}"
   clojars_password_env = "CLOJARS_PASSWORD=#{ENV["CLOJARS_PASSWORD"]}"
   c.run_inline %W{
@@ -25,18 +24,22 @@ def clojars_deploy()
   end
   c.pipe(%W{tar -c .lein/profiles.clj}, %W{docker cp - #{cname}:/root})
   c.run_inline %W{docker start -a #{cname}}
+end
+
+def clojars_deploy()
+  version = Time.now.utc.strftime("%Y.%m.%d")
+  clojars_deploy_version(version)
   c.run_inline %W{git tag #{version}}
   c.run_inline %W{git push origin #{version}}
 end
 
-def clojars_deploy_via_travis()
+def clojars_deploy_via_travis(snapshot=nil)
   c = Common.new
-  p ENV
-  puts
-  puts "Tag: #{ENV["TRAVIS_TAG"]}"
-  puts "Branch: #{ENV["TRAVIS_BRANCH"]}"
-  c.run_inline %W{git tag -l}
-  c.run_inline %W{git describe --tags}
+  version = ENV["TRAVIS_TAG"].empty? ? ENV["TRAVIS_BRANCH"] : ENV["TRAVIS_TAG"]
+  if snapshot == "snapshot"
+    version = "#{version}-SNAPSHOT"
+  end
+  clojars_deploy_version version
 end
 
 Common.register_command({
