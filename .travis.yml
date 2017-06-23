@@ -1,6 +1,8 @@
 services:
 - docker
 sudo: false
+script:
+  project.rb
 deploy:
   provider: script
   script: project.rb clojars-deploy-via-travis
