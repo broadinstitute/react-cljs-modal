@@ -2,10 +2,10 @@ services:
 - docker
 sudo: false
 script:
-  project.rb
+  ./project.rb
 deploy:
   provider: script
-  script: project.rb clojars-deploy-via-travis
+  script: ./project.rb clojars-deploy-via-travis
   on:
     branch: master
     tags: true
