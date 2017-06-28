@@ -21,14 +21,17 @@
       (when (:small-modal? @state)
         (modal/render (render-small-modal #(swap! state dissoc :small-modal?))))
       (when (:large-modal? @state)
-        (modal/render #(swap! state dissoc :large-modal?) [SuperLongModal]))
+        (modal/render
+         {:dismiss #(swap! state dissoc :large-modal?)
+          :content [SuperLongModal]}))
       [:div {} "Top of page"]
       [:button {:on-click #(swap! state assoc :small-modal? true)} "Open"]
       [:div {:style {:margin-top "20vw" :text-align "center"}}
        "This is some text centered on the page."]
-      [:div {:style {:margin-top "200vh"}}
+      [:div {:style {:margin-top (if (:long? @state) "200vh" "20vh")}}
        [:div {} [:button {:on-click #(swap! state assoc :large-modal? true)} "Open"]]
-       "Bottom of page"]
+       [:div {} [:button {:on-click #(swap! state update :long? not)} "Toggle Page Size"]]
+       [:div {} "Bottom of page"]]
       [modal/Container]])})
 
 (defn render-application []

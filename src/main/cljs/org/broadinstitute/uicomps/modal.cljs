@@ -13,21 +13,26 @@
    :overlay-color "rgba(110,110,110,0.4)"
    :modal-background-color "white"})
 
+(defn- is-scroll-bar-visible? []
+  (> (.. js/document -body -scrollHeight) (.. js/window -innerHeight)))
+
 (defn- calculate-scroll-bar-width []
-  ;; https://stackoverflow.com/questions/8701754/just-disable-scroll-not-hide-it
-  (let [outer (js-invoke js/document "createElement" "div")
-        inner (js-invoke js/document "createElement" "div")]
-    (aset outer "style" "visibility" "hidden")
-    (aset outer "style" "width" "100px")
-    (aset inner "style" "width" "100%")
-    (aset outer "style" "msOverflowStyle" "scrollbar") ; needed for WinJS apps
-    (js-invoke (aget js/document "body") "appendChild" outer)
-    (let [width-without-scrollbar (aget outer "offsetWidth")]
-      (aset outer "style" "overflow" "scroll")
-      (js-invoke outer "appendChild" inner)
-      (let [width-with-scrollbar (aget inner "offsetWidth")]
-        (js-invoke (aget outer "parentNode") "removeChild" outer)
-        (- width-without-scrollbar width-with-scrollbar)))))
+  (if-not (is-scroll-bar-visible?)
+    0
+    ;; https://stackoverflow.com/questions/8701754/just-disable-scroll-not-hide-it
+    (let [outer (js-invoke js/document "createElement" "div")
+          inner (js-invoke js/document "createElement" "div")]
+      (aset outer "style" "visibility" "hidden")
+      (aset outer "style" "width" "100px")
+      (aset inner "style" "width" "100%")
+      (aset outer "style" "msOverflowStyle" "scrollbar") ; needed for WinJS apps
+      (js-invoke (aget js/document "body") "appendChild" outer)
+      (let [width-without-scrollbar (aget outer "offsetWidth")]
+        (aset outer "style" "overflow" "scroll")
+        (js-invoke outer "appendChild" inner)
+        (let [width-with-scrollbar (aget inner "offsetWidth")]
+          (js-invoke (aget outer "parentNode") "removeChild" outer)
+          (- width-without-scrollbar width-with-scrollbar))))))
 
 (defn- construct-css []
   (str "
