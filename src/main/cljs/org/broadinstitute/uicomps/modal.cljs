@@ -73,6 +73,9 @@ body." body-class " {
           (remove-css)))))
    :get-default-props (constantly default-props)
    :get-initial-state (constantly {:stack {}})
+   :component-will-mount
+   (fn [{:keys [this]}]
+     (set! instance this))
    :render
    (fn [{:keys [props state]}]
      [:div {:className "react-cljs-modal-container"}
@@ -88,9 +91,6 @@ body." body-class " {
                                 :max-width "95%" :min-width 500}}
                   content]]])
              stack))])
-   :component-did-mount
-   (fn [{:keys [this]}]
-     (set! instance this))
    :component-will-unmount
    (fn [{:keys [this]}]
      (set! instance nil))})
