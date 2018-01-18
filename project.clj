@@ -12,9 +12,9 @@
    ]
   :plugins [[lein-cljsbuild "1.1.5"] [lein-figwheel "0.5.10"]]
   :profiles {:ui
-             {:dependencies [[binaryage/devtools "0.9.4"]
-                             [org.clojure/clojure "1.8.0"]
-                             [org.clojure/clojurescript "1.9.521"]]
+             {:dependencies [[binaryage/devtools "0.9.9"]
+                             [org.clojure/clojure "1.9.0"]
+                             [org.clojure/clojurescript "1.9.946"]]
               :target-path "resources/public/target"
               :clean-targets ^{:protect false} ["resources/public/target"]
               :cljsbuild
