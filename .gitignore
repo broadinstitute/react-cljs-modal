@@ -1,2 +1,6 @@
 /.project/common
 /.rsync.log
+
+.idea/
+
+*.iml
