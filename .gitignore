@@ -1,6 +1,8 @@
+/.idea/
+/.lein-repl-history
 /.project/common
 /.rsync.log
-
-.idea/
-
-*.iml
+/pom.xml*
+/react-cljs-modal.iml
+/src/static/webpack-deps.*
+/target/

@@ -7,7 +7,7 @@
   :license "BSD 3-Clause License"
   :dependencies
   [
-   [dmohs/react "1.1.0+15.4.2-2"]
+   [dmohs/react "1.3.0"]
    [frankiesardo/linked "1.2.9"]
    ]
   :plugins [[lein-cljsbuild "1.1.5"] [lein-figwheel "0.5.10"]]

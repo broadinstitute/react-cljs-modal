@@ -2,7 +2,7 @@ require_relative "common/common"
 
 def install(local, *args)
   c = Common.new
-  if not local
+  unless local
     jars_volume_name = args.shift
     if jars_volume_name.nil?
       c.error "Missing docker volume name for storing JARS (e.g. \"jars\")"
