@@ -4,7 +4,7 @@
    [linked.core :as linked]
    ))
 
-(defonce ^:private instance nil)
+(defonce ^:private stack-size (atom 0))
 
 (def body-class "broadinstitute-modal-open")
 
@@ -34,86 +34,47 @@
           (js-invoke (aget outer "parentNode") "removeChild" outer)
           (- width-without-scrollbar width-with-scrollbar))))))
 
-(defn- construct-css []
-  (str "
-body." body-class " {
-  overflow: hidden;
-  padding-right: " (calculate-scroll-bar-width) "px;
-}
-"))
-
-(def css-element-id (subs (str ::modal-css) 1))
-
-(defn- add-css []
-  (let [e (js-invoke js/document "createElement" "style")]
-    (aset e "innerHTML" (construct-css))
-    (aset e "id" css-element-id)
-    (js-invoke (aget js/document "head") "appendChild" e)))
-
-(defn- remove-css []
-  (js-invoke (js-invoke js/document "getElementById" css-element-id) "remove"))
-
-(r/defc Container
-  {:push-modal
-   (fn [{:keys [props state after-update]} id content & [did-mount]]
-     (let [will-mount? (not (contains? (:stack @state) id))]
-       (when (empty? (:stack @state))
-         (add-css))
-       (swap! state update :stack assoc id content)
-       (js-invoke (aget js/document "body" "classList") "add" body-class)
-       (when (and will-mount? did-mount)
-         (after-update did-mount))))
-   :remove-modal
-   (fn [{:keys [state after-update]} id]
-     (swap! state update :stack dissoc id)
-     (after-update
-      (fn []
-        (when (empty? (:stack @state))
-          (js-invoke (aget js/document "body" "classList") "remove" body-class)
-          (remove-css)))))
-   :get-default-props (constantly default-props)
-   :get-initial-state (constantly {:stack {}})
-   :component-will-mount
-   (fn [{:keys [this]}]
-     (set! instance this))
-   :render
-   (fn [{:keys [props state]}]
-     [:div {:className "react-cljs-modal-container"}
-      (let [{:keys [stack]} @state]
-        (map (fn [[id content]]
-               [:div {:style {:position "fixed" :z-index (:z-index props)
-                              :top 0 :bottom 0 :left 0 :right 0
-                              :background-color (:overlay-color props)
-                              :overflow "auto"}}
-                [:div {:style {:padding "2rem 0"
-                               :display "flex" :justify-content "center" :align-items "flex-start"}}
-                 [:div {:style {:background-color (:modal-background-color props)
-                                :max-width "95%" :min-width 500}}
-                  content]]])
-             stack))])
-   :component-will-unmount
-   (fn [{:keys [this]}]
-     (set! instance nil))})
-
 (r/defc Modal
-  {:render
-   (fn [{:keys [props]}]
-     nil)
-   :component-did-mount
+  {:get-default-props (constantly default-props)
+   :component-will-mount
+   (fn [{:keys [locals props]}]
+     (let [id (gensym "modal-")
+           container (js/document.createElement "div")]
+       (js/document.body.appendChild container)
+       (swap! locals assoc :container container)
+       (swap! stack-size inc)
+       (when (pos? @stack-size)
+         (js/document.body.classList.add body-class))))
+   :render
    (fn [{:keys [props locals]}]
-     (swap! locals assoc :id (gensym "modal-"))
-     (instance :push-modal (:id @locals) (:content props) (:did-mount props))
-     (when-let [dismiss (:dismiss props)]
-       (swap! locals assoc :keydown-handler (fn [e] (when (= 27 (aget e "keyCode")) (dismiss))))
-       (.addEventListener js/window "keydown" (:keydown-handler @locals))))
-   :component-will-receive-props
-   (fn [{:keys [next-props locals]}]
-     (instance :push-modal (:id @locals) (:content next-props)))
+     (let [{:keys [z-index overlay-color modal-background-color content]} props]
+       (r/create-portal
+        [:div {:style {:position "fixed" :z-index z-index
+                       :top 0 :bottom 0 :left 0 :right 0
+                       :background-color overlay-color
+                       :overflow "auto"}}
+         [:div {:style {:padding "2rem 0"
+                        :display "flex" :justify-content "center" :align-items "flex-start"}}
+          [:div {:style {:background-color modal-background-color
+                         :max-width "95%" :min-width 500}}
+           content]]]
+        (:container @locals))))
+   :component-did-mount
+   (fn [{:keys [props locals after-update]}]
+     (let [{:keys [did-mount dismiss]} props]
+       (when did-mount
+         (after-update did-mount))
+       (when-let [dismiss (:dismiss props)]
+         (swap! locals assoc :keydown-handler (fn [e] (when (= 27 (aget e "keyCode")) (dismiss))))
+         (.addEventListener js/window "keydown" (:keydown-handler @locals)))))
    :component-will-unmount
    (fn [{:keys [locals]}]
+     (.remove (:container @locals))
+     (swap! stack-size dec)
+     (when (zero? @stack-size)
+       (js/document.body.classList.remove body-class))
      (when (:keydown-handler @locals)
-       (.removeEventListener js/window "keydown" (:keydown-handler @locals)))
-     (instance :remove-modal (:id @locals)))})
+       (.removeEventListener js/window "keydown" (:keydown-handler @locals))))})
 
 (defn render [content-or-map]
   (let [m? (map? content-or-map)
@@ -121,3 +82,10 @@ body." body-class " {
         options (if m? (dissoc content-or-map :content) {})
         element (if (r/valid-element? content) content (r/create-element content))]
     [Modal (assoc options :content element)]))
+
+(let [e (js-invoke js/document "createElement" "style")]
+  (aset e "innerHTML"
+        (str "body." body-class " {"
+             "overflow: hidden;"
+             "padding-right: " (calculate-scroll-bar-width) "px;}"))
+  (js-invoke (aget js/document "head") "appendChild" e))

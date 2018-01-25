@@ -31,8 +31,7 @@
       [:div {:style {:margin-top (if (:long? @state) "200vh" "20vh")}}
        [:div {} [:button {:on-click #(swap! state assoc :large-modal? true)} "Open"]]
        [:div {} [:button {:on-click #(swap! state update :long? not)} "Toggle Page Size"]]
-       [:div {} "Bottom of page"]]
-      [modal/Container]])})
+       [:div {} "Bottom of page"]]])})
 
 (defn render-application []
   (r/render
